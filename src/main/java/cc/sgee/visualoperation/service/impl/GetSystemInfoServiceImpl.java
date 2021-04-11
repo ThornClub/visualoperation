@@ -27,7 +27,7 @@ public class GetSystemInfoServiceImpl implements GetSystemInfoService {
     public List<Map> GetFixInfo() {
         List<Map> info = new ArrayList<>();
         Map<String,String> map_info = new HashMap<>();
-        String sysinfo = ExecuteShell.GetResult("/root/GetFixInfo.sh");
+        String sysinfo = ExecuteShell.GetResult("./GetFixInfo.sh");
         map_info.put("ip",sysinfo.split(" ")[0]);
         map_info.put("version",sysinfo.split(" ")[1]);
         map_info.put("day",sysinfo.split(" ")[2]);
