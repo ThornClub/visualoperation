@@ -58,11 +58,18 @@ public class GetSystemInfoServiceImpl implements GetSystemInfoService {
         map_info.put("NumCores",sysinfo.split(" ")[5]);
         //判断负载状态是否正常，保留两位小数
         DecimalFormat df = new DecimalFormat("#.00");
-        double load = Double.parseDouble(sysinfo.split(" ")[4]);
-        int core = Integer.parseInt(sysinfo.split(" ")[5]);
-        String loadStatus = (load > core * 3) ? "负载过高" : "负载正常";
+        double load = 0;
+        int core = 0;
+        double loadRate = 0;
+        if (sysinfo.split(" ")[4] != null && sysinfo.split(" ")[5] != null) {
+            load = Double.parseDouble(sysinfo.split(" ")[4]);
+            core = Integer.parseInt(sysinfo.split(" ")[5]);
+            loadRate = load / (core * 2) * 100;
+            systemInfo.setLoad(loadRate);
+        }
+        String loadStatus = (loadRate >= 90) ? "负载过高" : "负载正常";
         map_info.put("loadStatus",loadStatus);
-        map_info.put("load",String.valueOf(df.format(load / (core * 3) * 100)));
+        map_info.put("load",String.valueOf(df.format(loadRate)));
         map_info.put("ram", String.valueOf(ram));
         map_info.put("remainram", String.valueOf(remainram));
         map_info.put("rom",sysinfo.split(" ")[8]);
@@ -72,9 +79,6 @@ public class GetSystemInfoServiceImpl implements GetSystemInfoService {
             systemInfo.setDisk(Integer.parseInt(sysinfo.split(" ")[10]));
         }
         systemInfo.setMemory(usageram);
-        if (sysinfo.split(" ")[4] != null && sysinfo.split(" ")[5] != null) {
-            systemInfo.setLoad(load / (core * 3) * 100);
-        }
         info.add(map_info);
         return info;
     }
