@@ -39,7 +39,7 @@ public class GetSystemInfoServiceImpl implements GetSystemInfoService {
     public List<Map> GetAll() {
         List<Map> info = new ArrayList<>();
         Map<String,String> map_info = new HashMap<>();
-        String sysinfo = ExecuteShell.GetResult("/root/GetNet.sh");
+        String sysinfo = ExecuteShell.GetResult("./GetNet.sh");
         double ram = 0;
         if (sysinfo.split(" ")[6] != null) {
             ram = Double.parseDouble(sysinfo.split(" ")[6]);
