@@ -147,7 +147,7 @@ public class ScafetyServiceImpl implements ScafetyService {
 
     @Override
     public void ChangePort(String port) {
-        ExecuteShell.GetResult("/root/ChangeSSHPort.sh " + port);
+        ExecuteShell.GetResult("./ChangeSSHPort.sh " + port);
     }
 
     @Override
