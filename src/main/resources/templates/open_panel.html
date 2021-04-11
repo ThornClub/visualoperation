@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>开启面板验证</title>
+</head>
+<body>
+<form action="/open_panel" method="post">
+    <h2>登陆</h2>
+    用户名:<input type="text" name="username"><br>
+    密码:<input type="password" name="password"><br>
+    <input type="submit" value="开启面板">
+    <p th:text="${#httpServletRequest.getAttribute('msg')}" style="color: red"></p>
+</form>
+</body>
+</html>

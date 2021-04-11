@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>面板设置界面</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.21.0/dist/axios.min.js"></script>
+</head>
+<style>
+    html,body{
+        /*设置内部填充为0，几个布局元素之间没有间距*/
+        padding: 0px;
+        /*外部间距也是如此设置*/
+        margin: 0px;
+        /*统一设置高度为100%*/
+        height: 100%;
+    }
+</style>
+<body>
+<div id="app">
+    <el-card style="height: 70px;border-radius: 0px">
+        <div style="display : inline-block">
+            <span>关闭面板</span>
+            <el-switch
+                    style="margin-left: 10px"
+                    v-model="closeoperation"
+                    active-color="#13ce66"
+                    inactive-color="#ff4949"
+                    @change="ClosePanel">
+            </el-switch>
+        </div>
+    </el-card>
+    <el-card style="height: 480px;border-radius: 0px;margin-top: 20px">
+        <span>面板设置</span>
+        <el-divider></el-divider>
+        <el-form :model="settings" ref="settings" label-width="100px" v-loading="loading">
+            <el-form-item label="别名">
+                <el-input size="small" style="width: 300px" v-model="settings.name"></el-input>
+                <span style="margin-left: 5px;font-size: 13px;color: #909399;">给面板更换个名称吧</span>
+            </el-form-item>
+            <el-form-item label="端口">
+                <el-input size="small" style="width: 300px" v-model="settings.port"></el-input>
+                <span style="margin-left: 5px;font-size: 13px;color: #909399;">建议端口范围8888 - 65535，注意：有安全组的服务器请提前在安全组放行新端口</span>
+            </el-form-item>
+            <el-form-item label="服务器时间">
+                <el-input size="small" style="width: 300px" v-model="settings.time" disabled></el-input>
+                <span style="margin-left: 5px;font-size: 13px;color: #909399;">保存后会进行服务器时间的同步操作哦</span>
+            </el-form-item>
+            <el-form-item label="用户名">
+                <el-input size="small" style="width: 300px" v-model="settings.username"></el-input>
+                <span style="margin-left: 5px;font-size: 13px;color: #909399;">面板登陆用户</span>
+            </el-form-item>
+            <el-form-item label="密码">
+                <el-input size="small" style="width: 300px" v-model="settings.password"></el-input>
+                <span style="margin-left: 5px;font-size: 13px;color: #909399;">面板登陆用户密码</span>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="success" round @click="saveSettings">保存</el-button>
+            </el-form-item>
+        </el-form>
+    </el-card>
+</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+    new Vue({
+        el: '#app',
+        data: {
+            closeoperation: false,
+            settings: {
+                name: '',
+                port: '',
+                time: '',
+                username: '',
+                password: ''
+            },
+            loading: false
+        },
+        created:function (){
+            this.GetSystemTime();
+        },
+        methods:{
+            GetSystemTime(){
+                axios.post("/systeminfo/settings").then((res) => {
+                    if (res.data.flag){
+                        this.settings.time = res.data.data[0].time;
+                        this.settings.name = res.data.data[0].name;
+                        this.settings.port = res.data.data[0].port;
+                        this.settings.username = res.data.data[0].username;
+                        this.settings.password = res.data.data[0].password;
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            saveSettings(){
+                axios.post("/save/settings",this.settings).then((res) => {
+                    this.loading = true;
+                    if (res.data.flag){
+                        this.loading = false;
+                        this.$message.success(res.data.message);
+                    }
+                    else {
+                        this.loading = false;
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            ClosePanel(){
+                this.$confirm('此操作将关闭面板, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios.post("/save/close_panel").then((res) => {
+                        if (res.data.flag){
+                            this.$message.success(res.data.message);
+                            window.location.href = "/close";
+                        }
+                        else {
+                            this.$message.error(res.data.message);
+                        }
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+            }
+        }
+    });
+</script>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>计划任务界面</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.21.0/dist/axios.min.js"></script>
+</head>
+<style>
+    html,body{
+        /*设置内部填充为0，几个布局元素之间没有间距*/
+        padding: 0px;
+        /*外部间距也是如此设置*/
+        margin: 0px;
+        /*统一设置高度为100%*/
+        height: 100%;
+    }
+</style>
+<body>
+<div id="app">
+    <el-card style="height: 570px;border-radius: 0px">
+        <div style="line-height: 10px">
+            <span>添加计划任务</span>
+            <el-divider></el-divider>
+        </div>
+        <el-form :rules="rules" :model="data" ref="data" inline-message="true">
+            <div>
+                <el-form-item label="任务说明" prop="task_desc">
+                    <el-input size="small" style="margin-left: 10px;width: 250px" v-model="data.task_desc"
+                              placeholder="请输入任务说明"></el-input>
+                </el-form-item>
+            </div>
+            <div style="margin-top: 20px;margin-left: 10px">
+                <el-form-item label="执行周期">
+                    <el-select id="select" size="small" style="margin-left: 10px;width: 100px;"
+                               @change="SelectValue" placeholder="请选择" v-model="value">
+                        <el-option
+                                v-for="item in options"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                        </el-option>
+                    </el-select>
+                    <span id="everyweek">
+                        <el-select size="small" style="margin-left: 10px;width: 100px;" v-model="week"
+                                   @change="SelectWeek">
+                            <el-option v-for="item in weeks" :key="item.value" :label="item.value"
+                                       :value="item.value" placeholder="请选择">
+                            </el-option>
+                        </el-select>
+                        <el-input id="hour" size="small"
+                                  type="number"
+                                  :max="12"
+                                  :min="0"
+                                  :maxlength="2"
+                                  style="margin-left: 10px;width: 130px;"
+                                  v-model="week_hour">
+                            <template slot="append">小时</template>
+                        </el-input>
+                        <el-input id="minute" size="small" type="number"
+                                  style="margin-left: 10px;width: 130px;"
+                                  v-model="week_minute"
+                                  :max="60"
+                                  :min="0"
+                                  :maxlength="2">
+                            <template slot="append">分钟</template>
+                        </el-input>
+                    </span>
+                    <span id="everyday">
+                        <el-input id="hour" size="small"
+                                  type="number"
+                                  :max="12"
+                                  :min="0"
+                                  :maxlength="2"
+                                  style="margin-left: 10px;width: 130px;"
+                                  v-model="week_hour">
+                            <template slot="append">小时</template>
+                        </el-input>
+                        <el-input id="minute" size="small" type="number"
+                                  style="margin-left: 10px;width: 130px;"
+                                  v-model="week_minute"
+                                  :max="60"
+                                  :min="0"
+                                  :maxlength="2">
+                            <template slot="append">分钟</template>
+                        </el-input>
+                    </span>
+                    <span id="Nday">
+                        <el-input size="small"
+                                  type="number"
+                                  :max="7"
+                                  :min="1"
+                                  :maxlength="1"
+                                  style="margin-left: 10px;width: 130px;"
+                                  v-model="day">
+                            <template slot="append">天</template>
+                        </el-input>
+                        <el-input id="hour" size="small"
+                                  type="number"
+                                  :max="12"
+                                  :min="0"
+                                  :maxlength="2"
+                                  style="margin-left: 10px;width: 130px;"
+                                  v-model="week_hour">
+                            <template slot="append">小时</template>
+                        </el-input>
+                        <el-input id="minute" size="small" type="number"
+                                  style="margin-left: 10px;width: 130px;"
+                                  v-model="week_minute"
+                                  :max="60"
+                                  :min="0"
+                                  :maxlength="2">
+                            <template slot="append">分钟</template>
+                        </el-input>
+                    </span>
+                    <span id="everyhour">
+                        <el-input id="minute" size="small" type="number"
+                                  style="margin-left: 10px;width: 130px;"
+                                  v-model="week_minute"
+                                  :max="60"
+                                  :min="0"
+                                  :maxlength="2">
+                            <template slot="append">分钟</template>
+                        </el-input>
+                    </span>
+                    <span id="Nhour">
+                        <el-input id="hour" size="small"
+                                  type="number"
+                                  :max="12"
+                                  :min="0"
+                                  :maxlength="2"
+                                  style="margin-left: 10px;width: 130px;"
+                                  v-model="week_hour">
+                            <template slot="append">小时</template>
+                        </el-input>
+                        <el-input id="minute" size="small" type="number"
+                                  style="margin-left: 10px;width: 130px;"
+                                  v-model="week_minute"
+                                  :max="60"
+                                  :min="0"
+                                  :maxlength="2">
+                            <template slot="append">分钟</template>
+                        </el-input>
+                    </span>
+                    <span id="Nminute">
+                        <el-input id="minute" size="small" type="number"
+                                  style="margin-left: 10px;width: 130px;"
+                                  v-model="week_minute"
+                                  :max="60"
+                                  :min="0"
+                                  :maxlength="2">
+                            <template slot="append">分钟</template>
+                        </el-input>
+                    </span>
+                    <span id="everymonth">
+                        <el-input size="small"
+                                  type="number"
+                                  :max="31"
+                                  :min="1"
+                                  :maxlength="2"
+                                  style="margin-left: 10px;width: 130px;"
+                                  v-model="month_day">
+                            <template slot="append">日</template>
+                        </el-input>
+                        <el-input id="hour" size="small"
+                                  type="number"
+                                  :max="12"
+                                  :min="0"
+                                  :maxlength="2"
+                                  style="margin-left: 10px;width: 130px;"
+                                  v-model="week_hour">
+                            <template slot="append">小时</template>
+                        </el-input>
+                        <el-input id="minute" size="small" type="number"
+                                  style="margin-left: 10px;width: 130px;"
+                                  v-model="week_minute"
+                                  :max="60"
+                                  :min="0"
+                                  :maxlength="2">
+                            <template slot="append">分钟</template>
+                        </el-input>
+                    </span>
+                </el-form-item>
+            </div>
+            <div style="margin-top: 20px">
+                <el-form-item label="脚本内容" prop="shell">
+                    <el-input
+                            style="margin-left: 10px;width: 500px"
+                            type="textarea"
+                            :rows="3"
+                            placeholder="请输入脚本内容"
+                            v-model="data.shell">
+                    </el-input>
+                </el-form-item>
+            </div>
+            <div style="margin-top: 20px;margin-left: 80px">
+                <el-form-item>
+                    <el-button type="primary" round @click="SubmitTask()">提交任务</el-button>
+                </el-form-item>
+            </div>
+        </el-form>
+        <div style="margin-top: 40px;margin-left: -30px;color: #909399;font-size: 12px">
+            <ul>
+                <li>以上操作仅能保证将命令添加到Crontab</li><br>
+                <li>具体执行情况还请关注主机日志</li><br>
+                <li>切勿执行rm -rf /* 等一起毁灭性操作</li>
+            </ul>
+        </div>
+    </el-card>
+</div>
+</body>
+<script type="text/javascript">
+    new Vue({
+        el: '#app',
+        data: {
+            options: [{
+                value: '每天'
+            }, {
+                value: 'N天'
+            }, {
+                value: '每小时'
+            }, {
+                value: 'N分钟'
+            }, {
+                value: 'N小时'
+            },{
+                value: '每月'
+            },{
+                value: '每星期'
+            }],
+            weeks: [{
+                value: '周一'
+            },{
+                value: '周二'
+            },{
+                value: '周三'
+            },{
+                value: '周四'
+            },{
+                value: '周五'
+            },{
+                value: '周六'
+            },{
+                value: '周日'
+            }],
+            value: '每星期',
+            week: '周一',
+            week_hour: 1,
+            week_minute: 0,
+            month_day: 1,
+            day: 1,
+            time_param: '',
+            week_num: '',
+            crontab: '',
+            data: {
+                task_desc: '',
+                shell: ''
+            },
+            rules: {
+                task_desc: [
+                    {required: true, message: '请输入任务说明', trigger: 'blur'}
+                ],
+                shell: [
+                    {required: true, message: '请输入任务内容', trigger: 'blur'}
+                ]
+            }
+        },
+        created:function (){
+            $("#everyday").hide();
+            $("#everyhour").hide();
+            $("#everymonth").hide();
+            $("#Nday").hide();
+            $("#Nhour").hide();
+            $("#Nminute").hide();
+        },
+        methods:{
+            SelectValue(select){
+                switch (select) {
+                    case "每星期":
+                        $("#everyday").hide();
+                        $("#everyhour").hide();
+                        $("#everymonth").hide();
+                        $("#Nday").hide();
+                        $("#Nhour").hide();
+                        $("#Nminute").hide();
+                        $("#everyweek").show();
+                        break;
+                    case "每天":
+                        $("#everyday").show();
+                        $("#everyhour").hide();
+                        $("#everymonth").hide();
+                        $("#Nday").hide();
+                        $("#Nhour").hide();
+                        $("#Nminute").hide();
+                        $("#everyweek").hide();
+                        break;
+                    case "每月":
+                        $("#everyday").hide();
+                        $("#everyhour").hide();
+                        $("#everymonth").show();
+                        $("#Nday").hide();
+                        $("#Nhour").hide();
+                        $("#Nminute").hide();
+                        $("#everyweek").hide();
+                        break;
+                    case "每小时":
+                        $("#everyday").hide();
+                        $("#everyhour").show();
+                        $("#everymonth").hide();
+                        $("#Nday").hide();
+                        $("#Nhour").hide();
+                        $("#Nminute").hide();
+                        $("#everyweek").hide();
+                        break;
+                    case "N天":
+                        $("#everyday").hide();
+                        $("#everyhour").hide();
+                        $("#everymonth").hide();
+                        $("#Nday").show();
+                        $("#Nhour").hide();
+                        $("#Nminute").hide();
+                        $("#everyweek").hide();
+                        break;
+                    case "N小时":
+                        $("#everyday").hide();
+                        $("#everyhour").hide();
+                        $("#everymonth").hide();
+                        $("#Nday").hide();
+                        $("#Nhour").show();
+                        $("#Nminute").hide();
+                        $("#everyweek").hide();
+                        break;
+                    case "N分钟":
+                        $("#everyday").hide();
+                        $("#everyhour").hide();
+                        $("#everymonth").hide();
+                        $("#Nday").hide();
+                        $("#Nhour").hide();
+                        $("#Nminute").show();
+                        $("#everyweek").hide();
+                        break;
+                }
+            },
+            SelectWeek(week){
+                switch (week) {
+                    case "周一":
+                        this.week_num = '1';
+                        break;
+                    case "周二":
+                        this.week_num = '2';
+                        break;
+                    case "周三":
+                        this.week_num = '3';
+                        break;
+                    case "周四":
+                        this.week_num = '4';
+                        break;
+                    case "周五":
+                        this.week_num = '5';
+                        break;
+                    case "周六":
+                        this.week_num = '6';
+                        break;
+                    case "周日":
+                        this.week_num = '7';
+                        break;
+                }
+            },
+            SubmitTask(){
+                switch (this.value) {
+                    case "每星期":
+                        this.time_param_everyweek();
+                        break;
+                    case "每天":
+                        this.time_param_everyday();
+                        break
+                    case "每月":
+                        this.time_param_everymonth();
+                        break;
+                    case "每小时":
+                        this.time_param_everyhour();
+                        break;
+                    case "N天":
+                        this.time_param_Nday();
+                        break;
+                    case "N小时":
+                        this.time_param_Nhour();
+                        break;
+                    case "N分钟":
+                        this.time_param_Nminute();
+                        break;
+                }
+                this.crontab = this.time_param + ' ' + this.data.shell;
+                this.data.task_desc = '# ' + this.data.task_desc;
+                var task_data = {
+                    desc: this.data.task_desc,
+                    crontab: this.crontab
+                }
+                axios.post("/save/task",task_data).then((res) => {
+                    if (res.data.flag){
+                        this.$message.success(res.data.message);
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            time_param_everyweek(){
+                this.time_param = this.week_minute+' '+this.week_hour+' * * '+this.week_num;
+            },
+            time_param_everyday(){
+                this.time_param = this.week_minute+' '+this.week_hour+' * * *';
+            },
+            time_param_everymonth(){
+                this.time_param = this.week_minute+' '+this.week_hour+' '+this.month_day+' * *';
+            },
+            time_param_everyhour(){
+                this.time_param = this.week_minute+' * * * *';
+            },
+            time_param_Nday(){
+                this.time_param = this.week_minute+' '+this.week_hour+' */'+this.day+' * *';
+            },
+            time_param_Nhour(){
+                this.time_param = this.week_minute+' */'+this.week_hour+' * * *';
+            },
+            time_param_Nminute(){
+                this.time_param = '*/'+this.week_minute+' * * * *';
+            }
+
+        }
+    });
+</script>
+</html>

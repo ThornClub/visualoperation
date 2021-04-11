@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${name}"></title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.21.0/dist/axios.min.js"></script>
+    <style>
+        html,body,#app,.el-container{
+            /*设置内部填充为0，几个布局元素之间没有间距*/
+            padding: 0px;
+            /*外部间距也是如此设置*/
+            margin: 0px;
+            /*统一设置高度为100%*/
+            height: 100%;
+        }
+        #ip {
+            color: white;
+            font-size: 20px;
+            padding-left: 30px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        li {
+            list-style-type:none;
+            float: left;
+        }
+        #menu {
+            text-decoration:none;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <el-container class="el-container" style="background-color: #E4E7ED">
+        <el-aside width="200px" style="background-color: #000000">
+            <el-row>
+                <div id="ip">
+                    <i class="el-icon-s-platform"></i>
+                    <span style="font-size: 16px">{{ip}}</span>
+                </div>
+                <el-col>
+                    <el-menu
+                            default-active="1"
+                            class="el-menu-vertical-demo"
+                            background-color="#333333"
+                            text-color="#fff"
+                            active-text-color="#ffd04b">
+                        <template v-for="menu in menus">
+                            <el-menu-item :index="menu.path" >
+                                <i :class="menu.icon"></i>
+                                <a id="menu" href="#" @click="jumpPage(menu.linkUrl)">{{menu.title}}</a>
+                            </el-menu-item>
+                        </template>
+                    </el-menu>
+                </el-col>
+            </el-row>
+        </el-aside>
+
+
+        <el-container>
+            <el-header style="font-size: 12px">
+                <el-card style="height: 50px;width: 1292px;border-radius: 0px;line-height: 15px;margin-top: 7px">
+                        <i class="el-icon-s-tools"></i>
+                        <span>系统：{{system}}</span>
+                        <span style="margin-left: 50px">不间断运行：{{days}}</span>
+                        <a href="/" style="margin-left: 800px">关机</a>
+                        <a href="" style="margin-left: 10px">重启</a>
+                </el-card>
+            </el-header>
+
+            <el-main>
+                <iframe id="jumpPage" width="1292px" height="575px" frameborder="0" src="/home"></iframe>
+            </el-main>
+            <el-footer style="background-color: white;height: 50px;text-align: center;font-size: 13px">
+                <span style="line-height: 50px">
+                    Linux可视化运维面板 Copyright © 2020 -
+                    <a href="https://www.sgee.cc" target="_blank">Thorn</a> Corporation,All Rights Reserved
+                </span>
+            </el-footer>
+        </el-container>
+    </el-container>
+</div>
+</body>
+<script type="text/javascript">
+    new Vue({
+        el: '#app',
+        data: {
+            //ip地址
+            ip:'',
+            //系统版本
+            system:'',
+            //运行天数
+            days:'',
+            //菜单
+            menus:[
+                {
+                    path:'1',
+                    title:'首页',
+                    icon:'el-icon-s-home',
+                    linkUrl:'/home'
+                },
+                {
+                    path:'2',
+                    title:'网站',
+                    icon:'el-icon-s-help',
+                    linkUrl:'/website'
+                },
+                {
+                    path:'3',
+                    title:'数据库',
+                    icon:'el-icon-coin',
+                    linkUrl:'/database'
+                },
+                {
+                    path:'4',
+                    title:'安全',
+                    icon:'el-icon-lock',
+                    linkUrl:'/scafety'
+                },
+                {
+                    path:'5',
+                    title:'监控预警',
+                    icon:'el-icon-s-data',
+                    linkUrl:'/monitor'
+                },
+                {
+                    path:'6',
+                    title:'计划任务',
+                    icon:'el-icon-date',
+                    linkUrl:'/tasks'
+                },
+                {
+                    path:'7',
+                    title:'面板设置',
+                    icon:'el-icon-setting',
+                    linkUrl:'/settings'
+                },
+                {
+                    path:'8',
+                    title:'退出',
+                    icon:'el-icon-error',
+                    linkUrl:'/logout'
+                },
+
+            ]
+
+        },
+        created:function (){
+            this.getFixInfo();
+        },
+        methods:{
+            getFixInfo(){
+                axios.post("/systeminfo/fixinfo").then((res) => {
+                    if (res.data.flag){
+                        this.system = res.data.data[0].version;
+                        this.days = res.data.data[0].day;
+                        this.ip = res.data.data[0].ip;
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            jumpPage(url){
+                if (url != "/logout"){
+                    $('#jumpPage').attr('src',url);
+                }
+                else {
+                    window.location.href = url;
+                }
+            }
+        }
+    });
+</script>
+</html>

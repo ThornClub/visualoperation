@@ -1,0 +1,76 @@
+server:
+# 端口号
+  port: 8888
+
+# API
+swagger:
+  enable: false
+# 日志
+logging:
+  level:
+    cc.sgee: debug
+# 解决Swagger2 异常 NumberFormatException:For input string:""
+    io:
+      swagger:
+        models:
+          parameters:
+            AbstractSerializableParameter: ERROR
+
+spring:
+# 权限控制
+  security:
+    user:
+      name: admin
+      password: 12345
+# 放行静态资源
+  thymeleaf:
+# prefix: classpath:/templates/
+    cache: false
+# 发送邮件
+  mail:
+    host: smtp.qq.com
+    username: 41445233@qq.com
+    password: shfkzbdvzxkjbjge
+    port: 587
+    default-encoding: UTF-8
+    # 配置SSL 加密工厂
+    properties:
+      mail:
+        smtp:
+          socketFactoryClass: javax.net.ssl.SSLSocketFactory
+# 定时器开关
+scheduling:
+  enabled: true
+# 网站名称
+website:
+  name: Linux可视化面板
+  status: true
+
+monitor:
+  remind:
+    wx:
+      key: qwertyuytrew
+    email:
+      receive:
+        - 1225126786@qq.com
+        - 642647576@qq.com
+  monitorSetting:
+    cpu: 12.00
+    load: 13.00
+    memory: 14.00
+    disk: 15.00
+
+# ssh状态
+ssh:
+  status: true
+  port: 22
+
+ping:
+  status: true
+
+scafety:
+  list:
+    - port: "39000-40000"
+      havior: "放行端口"
+      status: "正常"
+      time: "2021-02-09 05:05:34"

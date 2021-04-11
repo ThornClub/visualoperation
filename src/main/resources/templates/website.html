@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>网站界面</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.21.0/dist/axios.min.js"></script>
+</head>
+<style>
+    html,body{
+        /*设置内部填充为0，几个布局元素之间没有间距*/
+        padding: 0px;
+        /*外部间距也是如此设置*/
+        margin: 0px;
+        /*统一设置高度为100%*/
+        height: 100%;
+    }
+</style>
+<body>
+<div id="app">
+    <el-card style="height: 70px;border-radius: 0px">
+        <span>Nginx版本号:{{nginxVersion}}</span>
+        <span style="margin-left: 50px">状态:{{nginxStatus}}</span>
+        <span style="margin-left: 50px">操作:</span>
+        <el-button size="small" type="success">启动</el-button>
+        <el-button size="small" type="warning">重启</el-button>
+        <el-button size="small" type="danger">关闭</el-button>
+    </el-card>
+    <el-card style="height: 480px;border-radius: 0px;margin-top: 20px">
+        <span>网站管理</span>
+        <el-divider></el-divider>
+        <el-button size="small" type="success" @click="dialogAddWebForm = true">添加数据库</el-button>
+        <el-button size="small" @click="dialogPhpForm = true">PHP版本</el-button>
+        <el-table :data="website" style="width: 100%">
+            <el-table-column
+                    prop="name"
+                    label="网站名"
+                    width="250">
+            </el-table-column>
+            <el-table-column
+                    label="状态"
+                    fixed="right">
+                <el-button @click="" type="text" size="small" style="color: green">运行中</el-button>
+            </el-table-column>
+            <el-table-column
+                    label="SSL证书"
+                    fixed="right">
+                <el-button @click="" type="text" size="small" style="color: green">未部署</el-button>
+            </el-table-column>
+            <el-table-column
+                    prop="root"
+                    label="根目录"
+                    width="250">
+            </el-table-column>
+            <el-table-column
+                    label="操作"
+                    fixed="right">
+                <el-button @click="" type="text" size="small">设置</el-button>
+                <el-button @click="" type="text" size="small">删除</el-button>
+            </el-table-column>
+        </el-table>
+    </el-card>
+</div>
+</body>
+<script type="text/javascript">
+    new Vue({
+        el: '#app',
+        data: {
+            nginxVersion: '7.0',
+            nginxStatus: 'Running',
+            dialogAddWebForm: false,
+            dialogPhpForm: false,
+            website: [
+                {
+                    name: '',
+                    root: ''
+                }
+            ]
+        },
+        method:{
+
+        }
+    })
+</script>
+</html>

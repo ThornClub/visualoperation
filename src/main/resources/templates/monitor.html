@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>监控界面</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.21.0/dist/axios.min.js"></script>
+</head>
+<style>
+    html,body{
+        /*设置内部填充为0，几个布局元素之间没有间距*/
+        padding: 0px;
+        /*外部间距也是如此设置*/
+        margin: 0px;
+        /*统一设置高度为100%*/
+        height: 100%;
+    }
+</style>
+<body>
+<div id="app">
+    <el-card style="height: 70px;border-radius: 0px">
+        <div style="display : inline-block">
+            <span>开启监控报警</span>
+            <el-switch
+                    style="margin-left: 10px"
+                    v-model="monitor_status"
+                    active-color="#13ce66"
+                    inactive-color="#ff4949"
+                    @change="SwitchMonitor">
+            </el-switch>
+        </div>
+        <div style="display: inline-block;margin-left: 70px">
+            <span>报警方式</span>
+            <el-button size="small" @click="dialogFormVisible = true">微信设置</el-button>
+            <el-dialog title="微信提醒设置" :visible.sync="dialogFormVisible">
+                <el-form :model="WXKey" ref="WXKey">
+                    <el-form-item label="Server酱-Key">
+                        <el-input style="width: 400px" v-model="WXKey.wx_key"></el-input>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialogFormVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="SaveWxKey">确 定</el-button>
+                </div>
+            </el-dialog>
+            <el-button size="small" @click="dialogTableVisible = true">邮箱设置</el-button>
+            <el-dialog title="邮箱提醒设置" :visible.sync="dialogTableVisible">
+                <el-button size="small" type="success" @click="ReceivePeopleForm = true">添加收件人</el-button>
+                <el-dialog title="添加收件人" style="width: 1100px;margin-left: 200px"
+                           :visible.sync="ReceivePeopleForm"
+                           append-to-body>
+                    <el-form :model="Receive" ref="Receive">
+                        <el-form-item label="Email">
+                            <el-input style="width: 400px" v-model="Receive.email"></el-input>
+                        </el-form-item>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="ReceivePeopleForm = false">取 消</el-button>
+                        <el-button type="primary" @click="AddReceivePeople">确 定</el-button>
+                    </div>
+                </el-dialog>
+                <el-button size="small" @click="SendPeopleForm = true">发信人设置</el-button>
+                <el-dialog title="发信人设置" style="width: 800px;margin-left: 200px" :visible.sync="SendPeopleForm"
+                           append-to-body>
+                    <el-form :model="Send" ref="Send" :label-position="labelposition" label-width="100px">
+                        <el-form-item label="发送人邮箱">
+                            <el-input size="small" style="width: 200px" v-model="Send.send_email"></el-input>
+                        </el-form-item>
+                        <el-form-item label="smtp密码">
+                            <el-input size="small" style="width: 200px" v-model="Send.smtp_password"></el-input>
+                        </el-form-item>
+                        <el-form-item label="smtp服务器">
+                            <el-input size="small" style="width: 200px" v-model="Send.smtp_server"></el-input>
+                        </el-form-item>
+                        <el-form-item label="端口">
+                            <el-input size="small" style="width: 200px" v-model="Send.smtp_port"></el-input>
+                        </el-form-item>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="SendPeopleForm = false">取 消</el-button>
+                        <el-button type="primary" @click="SaveSendPeople">确 定</el-button>
+                    </div>
+                </el-dialog>
+                <el-table :data="email" stripe="true" style="width: 100%">
+                    <el-table-column prop="key" label="邮箱" width="200"></el-table-column>
+                    <el-table-column fixed="right" label="操作" width="150">
+                        <template slot-scope="scope">
+                            <el-button @click.native.prevent="deleteRow(scope.row)" type="text"
+                                       size="small">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </el-dialog>
+        </div>
+    </el-card>
+    <el-card style="height: 480px;border-radius: 0px;margin-top: 20px">
+        <span>预警设置</span>
+        <el-divider></el-divider>
+        <el-form :rules="rules" :model="monitor_data" ref="monitor_data">
+            <el-form-item prop="cpu">
+                <span>CPU使用率超过</span>
+                <el-input size="small" v-model.number="monitor_data.cpu" style="width: 200px"></el-input>
+                <span>%立即报警</span>
+            </el-form-item>
+            <el-form-item prop="load">
+                <span>系统平均负载超</span>
+                <el-input size="small" v-model.number="monitor_data.load" style="width: 200px"></el-input>
+                <span>%立即报警</span>
+            </el-form-item>
+            <el-form-item prop="memory">
+                <span>内存使用率超过</span>
+                <el-input size="small" v-model.number="monitor_data.memory" style="width: 200px"></el-input>
+                <span>%立即报警</span>
+            </el-form-item>
+            <el-form-item prop="disk">
+                <span>硬盘使用率超过</span>
+                <el-input size="small" v-model.number="monitor_data.disk" style="width: 200px"></el-input>
+                <span>%立即报警</span>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" round @click="SaveData">保存</el-button>
+            </el-form-item>
+        </el-form>
+        <ul style="margin-top: 40px;margin-left: -30px;color: #909399;font-size: 12px">
+            <li>注:开启监控-->设置报警方式(微信/邮箱)-->设置报警信息</li><br>
+            <li>邮箱收不到信息请检查收件人与发件人信息是否正确</li>
+        </ul>
+    </el-card>
+</div>
+</body>
+<script type="text/javascript">
+    new Vue({
+        el: '#app',
+        data: {
+            labelposition: 'left',
+            monitor_status: true,
+            monitor_data: {
+                cpu: 0.00,
+                load: 0.00,
+                memory: 0.00,
+                disk: 0.00
+            },
+            WXKey: {
+                wx_key: ''
+            },
+            Receive: {
+                email: ''
+            },
+            Send: {
+                send_email: '',
+                smtp_password: '',
+                smtp_server: '',
+                smtp_port: ''
+            },
+            email: [
+                {key: ''}
+            ],
+            rules: {
+                cpu: [
+                    {required: true, message: '请输入CPU百分比', trigger: 'blur'},
+                    {type: 'number', message: 'CPU百分比必须为数字值',trigger: 'blur'},
+                ],
+                load: [
+                    {required: true, message: '请输入平均负载百分比', trigger: 'blur'},
+                    {type: 'number', message: '平均负载百分比必须为数字值',trigger: 'blur'},
+                ],
+                memory: [
+                    {required: true, message: '请输入内存占用百分比', trigger: 'blur'},
+                    {type: 'number', message: '内存占用百分比必须为数字值',trigger: 'blur'},
+                ],
+                disk: [
+                    {required: true, message: '请输入硬盘占用百分比', trigger: 'blur'},
+                    {type: 'number', message: '硬盘占用百分比必须为数字值',trigger: 'blur'},
+                ]
+            },
+            dialogFormVisible: false,
+            dialogTableVisible: false,
+            ReceivePeopleForm: false,
+            SendPeopleForm: false
+        },
+        created:function(){
+            this.GetMonitorInfo();
+        },
+        methods:{
+            GetMonitorInfo(){
+                axios.post("/monitor/info").then((res) => {
+                    if (res.data.flag){
+                        this.monitor_data.load = res.data.data[0].load;
+                        this.monitor_data.memory = res.data.data[0].memory;
+                        this.monitor_data.disk = res.data.data[0].disk;
+                        this.monitor_data.cpu = res.data.data[0].cpu;
+                        this.WXKey.wx_key = res.data.data[0].wx_key;
+                        this.Send.send_email = res.data.data[0].send_email;
+                        this.Send.smtp_password = res.data.data[0].smtp_password;
+                        this.Send.smtp_server = res.data.data[0].smtp_server;
+                        this.Send.smtp_port = res.data.data[0].smtp_port;
+                        this.email.splice(0,this.email.length);
+                        for (let i = 0; i < res.data.data[0].email_rec.length; i++) {
+                            this.email.push({key: res.data.data[0].email_rec[i]});
+                        }
+                        this.monitor_status = res.data.data[0].status;
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            SwitchMonitor(){
+                axios.post("/monitor/switch/" + this.monitor_status).then((res) => {
+                    if (res.data.flag){
+                        this.$message.success(res.data.message);
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            SaveData(){
+                axios.post("/monitor/save_data",this.monitor_data).then((res) => {
+                    if (res.data.flag){
+                        this.$message.success(res.data.message);
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            SaveWxKey(){
+                axios.post("/monitor/savewx/" + this.WXKey.wx_key).then((res) => {
+                    if (res.data.flag){
+                        this.$message.success(res.data.message);
+                        this.dialogFormVisible = false;
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            AddReceivePeople(){
+                axios.post("/monitor/addReceive/" + this.Receive.email).then((res) => {
+                    if (res.data.flag){
+                        this.$message.success(res.data.message);
+                        this.ReceivePeopleForm = false;
+                        this.GetMonitorInfo();
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            SaveSendPeople(){
+                axios.post("/monitor/saveSendPeople",this.Send).then((res) => {
+                    if (res.data.flag){
+                        this.$message.success(res.data.message);
+                        SendPeopleForm = false;
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            deleteRow(rows){
+                axios.post("/monitor/delReceive/" + rows.key).then((res) => {
+                    if (res.data.flag){
+                        this.$message.success(res.data.message);
+                        this.GetMonitorInfo();
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            }
+        }
+    })
+</script>
+</html>

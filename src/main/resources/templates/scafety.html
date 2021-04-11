@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>安全界面</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.21.0/dist/axios.min.js"></script>
+</head>
+<style>
+    html,body{
+        /*设置内部填充为0，几个布局元素之间没有间距*/
+        padding: 0px;
+        /*外部间距也是如此设置*/
+        margin: 0px;
+        /*统一设置高度为100%*/
+        height: 100%;
+    }
+</style>
+<body>
+<div id="app">
+    <el-card style="height: 70px;border-radius: 0px">
+        <div style="display : inline-block">
+            <span>SSH状态</span>
+            <el-switch
+                    style="margin-left: 10px"
+                    v-model="ssh"
+                    active-color="#13ce66"
+                    inactive-color="#ff4949"
+                    @change="SwitchSSH($event)">
+            </el-switch>
+        </div>
+        <div style="display : inline-block">
+            <el-form :inline="true">
+                <el-form-item style="margin-left: 70px;margin-top: -5px" label="SSH端口"></el-form-item>
+                <el-input size="small" style="width: 200px" v-model="ssh_port"></el-input>
+                <el-button size="small" @click="ChangeSsh()">更改</el-button>
+            </el-form>
+        </div>
+        <div style="display : inline-block;">
+            <span style="margin-left: 70px">启用禁Ping</span>
+            <el-switch
+                    style="margin-left: 10px"
+                    v-model="ping"
+                    active-color="#13ce66"
+                    inactive-color="#ff4949"
+                    @change="SwitchPing($event)">
+            </el-switch>
+        </div>
+    </el-card>
+    <el-card style="height: 480px;border-radius: 0px;margin-top: 20px">
+        <span>防火墙</span>
+        <el-divider></el-divider>
+        <div id="block_allow">
+            <el-form :inline="true">
+                <el-form-item>
+                    <el-select id="select" v-model="value" @change="allow_block" size="small" style="width: 100px;">
+                        <el-option value="放行端口"></el-option>
+                        <el-option value="屏蔽IP"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item>
+                    <el-input id="ip_port" size="small" style="width: 200px" v-model="block_ip" placeholder="请输入要屏蔽的IP"></el-input>
+                    <el-button id="button" size="small" @click="SubmitBlockIpAllowPort">屏蔽</el-button>
+                    <span id="input_text" style="margin-left: 5px;font-size: 13px;color: #909399;">说明:支持屏蔽IP段，如:
+                    192.168.0.0/24</span>
+                </el-form-item>
+            </el-form>
+        </div>
+        <div id="info">
+            <el-table :data="OperInfo.slice((currentPage - 1) * pageSize, currentPage * pageSize)" stripe="true"
+                      style="width: 100%">
+                <el-table-column prop="num" label="序号" width="180"></el-table-column>
+                <el-table-column prop="havior" label="行为" width="300"></el-table-column>
+                <el-table-column prop="status" label="状态" width="300"></el-table-column>
+                <el-table-column prop="operat_time" label="操作时间" width="180"></el-table-column>
+                <el-table-column fixed="right" label="操作" width="180">
+                    <template slot-scope="scope">
+                        <el-button @click.native.prevent="deleteRow(scope.row)" type="text" size="small">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <div class="block">
+                <el-pagination
+                        @current-change="handleCurrentChange"
+                        :current-page.sync="currentPage"
+                        :page-size="pageSize"
+                        layout="prev, pager, next, total"
+                        :total="OperInfo.length"
+                        style="text-align: center;margin-top: 1%;">
+                </el-pagination>
+            </div>
+        </div>
+    </el-card>
+</div>
+</body>
+<script type="text/javascript">
+    new Vue({
+        el: '#app',
+        data: {
+            ssh: true,
+            ssh_port: '',
+            ping: false,
+            block_ip: '',
+            allow_port: '',
+            value: '屏蔽IP',
+            OperInfo: [
+                {
+                    num: 0,
+                    havior: '',
+                    status: '',
+                    operat_time: ''
+                }
+            ],
+            currentPage: 1,
+            pageSize: 4
+        },
+        created:function(){
+            this.GetScafetyInfo();
+        },
+        methods:{
+            SubmitBlockIpAllowPort(){
+                switch (this.value) {
+                    case "屏蔽IP":
+                        axios.post("/scafety/block_ip/" + this.block_ip).then((res) => {
+                            if (res.data.flag){
+                                this.$message.success(res.data.message);
+                                this.GetScafetyInfo();
+                            }
+                            else {
+                                this.$message.error(res.data.message);
+                            }
+                        })
+                        break;
+                    case "放行端口":
+                        axios.post("/scafety/allow_port/" + this.allow_port).then((res) => {
+                            if (res.data.flag){
+                                this.$message.success(res.data.message);
+                                this.GetScafetyInfo();
+                            }
+                            else {
+                                this.$message.error(res.data.message);
+                            }
+                        })
+                        break;
+                }
+            },
+            ChangeSsh(){
+                axios.post("/scafety/change_port/" + this.ssh_port).then((res) => {
+                    if (res.data.flag){
+                        this.$message.success(res.data.message);
+                        this.GetScafetyInfo();
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            allow_block(select){
+                var button = $("#button");
+                var ip_port = $("#ip_port");
+                var input_text = $("#input_text");
+                switch (select) {
+                    case "屏蔽IP":
+                        button.html("屏蔽");
+                        ip_port.attr("v-model","block_ip");
+                        ip_port.attr("placeholder","请输入要屏蔽的ip")
+                        input_text.html("说明:支持屏蔽IP段，如:192.168.0.0/24");
+                        break;
+                    case "放行端口":
+                        button.html("放行");
+                        ip_port.attr("v-model","allow_port");
+                        ip_port.attr("placeholder","请输入要放行的端口")
+                        input_text.html("说明: 支持放行端口范围，如: 3000:3500");
+                        break;
+                }
+            },
+            GetScafetyInfo(){
+                axios.post("/scafety/getinfo").then((res) => {
+                    if (res.data.flag){
+                        this.ssh = res.data.data[0].ssh_status;
+                        this.ssh_port = res.data.data[0].port;
+                        this.ping = res.data.data[0].ping_status;
+                        this.OperInfo.splice(0,this.OperInfo.length);
+                        for (let i = 0; i < res.data.data[0].table.length; i++) {
+                            this.OperInfo.push({
+                                num: i,
+                                havior: res.data.data[0].table[i].havior,
+                                status: res.data.data[0].table[i].status,
+                                operat_time: res.data.data[0].table[i].time
+                            });
+                        }
+                    }
+                    else {
+                        this.$message.error("获取信息失败,请重试！")
+                    }
+                })
+            },
+            deleteRow(rows){
+                axios.post("/scafety/delete/" + rows.havior).then((res) => {
+                    if (res.data.flag){
+                        this.$message.success(res.data.message);
+                        this.GetScafetyInfo();
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            SwitchSSH(e){
+                if (e){
+                    axios.post("/scafety/open_ssh").then((res) => {
+                        if (res.data.flag){
+                            this.$message.success(res.data.message);
+                        }
+                        else {
+                            this.$message.error(res.data.message);
+                        }
+                    })
+                }
+                else {
+                    axios.post("/scafety/close_ssh").then((res) => {
+                        if (res.data.flag){
+                            this.$message.success(res.data.message);
+                        }
+                        else {
+                            this.$message.error(res.data.message);
+                        }
+                    })
+                }
+            },
+            SwitchPing(e){
+                if (e){
+                    axios.post("/scafety/close_ping").then((res) => {
+                        if (res.data.flag){
+                            this.$message.success(res.data.message);
+                        }
+                        else {
+                            this.$message.error(res.data.message);
+                        }
+                    })
+                }
+                else {
+                    axios.post("/scafety/open_ping").then((res) => {
+                        if (res.data.flag){
+                            this.$message.success(res.data.message);
+                        }
+                        else {
+                            this.$message.error(res.data.message);
+                        }
+                    })
+                }
+            },
+            handleCurrentChange(cpage){
+                this.$data.currentPage = cpage;
+            }
+        }
+    })
+</script>
+</html>

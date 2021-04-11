@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>面板已关闭</title>
+</head>
+<body>
+<h1>面板已被管理员关闭！</h1><br>
+<h3>开启面板请访问:</h3><h3
+        th:text="${#httpServletRequest.getScheme()+'://'+#httpServletRequest.getServerName()+':'+#httpServletRequest.getServerPort()+'/open_panel_form'}"></h3>
+</body>
+</html>

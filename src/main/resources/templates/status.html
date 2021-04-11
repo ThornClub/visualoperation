@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>状态界面</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.21.0/dist/axios.min.js"></script>
+    <style>
+        html,body{
+            /*设置内部填充为0，几个布局元素之间没有间距*/
+            padding: 0px;
+            /*外部间距也是如此设置*/
+            margin: 0px;
+            /*统一设置高度为100%*/
+            height: 100%;
+        }
+
+        li {
+            list-style-type:none;
+            float: left;
+        }
+        .circle-top {
+            margin-left: 10px;
+            text-align: center;
+            margin-top: -5px;
+        }
+        .circle-buttom {
+            text-align: center;
+            margin-left: 10px;
+            margin-top: -4px;
+        }
+        .Overview,.flow {
+
+            display:inline-block;
+        }
+        a {
+            text-decoration:none;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <el-card style="height: 260px;border-radius: 0px">
+        <div style="line-height: 15px">
+            <span>状态</span>
+            <el-divider></el-divider>
+        </div>
+        <ul>
+            <li>
+                <h4 class="circle-top">负载状态</h4>
+                <span>
+                    <el-progress style="margin-top: -18px;" type="circle" :percentage="load"></el-progress>
+                </span>
+                <h4 class="circle-buttom">运行正常</h4>
+            </li>
+            <li style="margin-left: 200px">
+                <h4 class="circle-top">CPU使用率</h4>
+                <span>
+                    <el-progress style="margin-top: -18px;" type="circle" :percentage="cpu"></el-progress>
+                </span>
+                <h4 class="circle-buttom">{{NumCores}}核心</h4>
+            </li>
+            <li style="margin-left: 200px">
+                <h4 class="circle-top">内存使用率</h4>
+                <span>
+                    <el-progress style="margin-top: -18px;" type="circle" :percentage="ramusage"></el-progress>
+                </span>
+                <h4 class="circle-buttom">{{usedram}}MB/{{ram}}MB</h4>
+            </li>
+            <li style="margin-left: 200px">
+                <h4 class="circle-top">{{name_rom}}</h4>
+                <span>
+                    <el-progress style="margin-top: -18px;" type="circle" :percentage="romusage"></el-progress>
+                </span>
+                <h4 class="circle-buttom">{{usedrom}}/{{rom}}</h4>
+            </li>
+        </ul>
+    </el-card>
+    <div class="Overview">
+        <el-card style="width: 400px;margin-top: 20px;height: 273px;border-radius: 0px">
+            <span>状态</span>
+            <el-divider></el-divider>
+            <el-card style="width: 340px;height: 70px;background-color: #E4E7ED;margin-left: 10px">
+                            <span style="margin-left: 110px;text-align: center;font-size: 25px">网站
+                            <a :underline="false" style="color: green;margin-left: 10px" href="">{{NumSites}}</a></span>
+            </el-card>
+            <el-card style="width: 340px;margin-top: 10px;height: 70px;background-color: #E4E7ED;margin-left: 10px">
+                            <span style="margin-left: 110px;text-align: center;font-size: 25px">数据库
+                            <a :underline="false" style="color: green;margin-left: 10px" href="">{{NumDbs}}</a></span>
+            </el-card>
+        </el-card>
+    </div>
+    <div class="flow">
+        <el-card id="chart"
+                 style="margin-left: 15px;width: 865px;margin-top: 20px;height: 273px;border-radius:
+                    0px">
+        </el-card>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    var option = {
+        title: {
+            text: ''
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross',
+                label: {
+                    backgroundColor: '#6a7985'
+                }
+            }
+        },
+        legend: {
+            data: []
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category',
+                boundaryGap: false,
+                data:[]
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: '',
+                type: 'line',
+                stack: '总量',
+                areaStyle: {},
+                data: []
+            },
+            {
+                name: '',
+                type: 'line',
+                stack: '总量',
+                areaStyle: {},
+                data: []
+            }
+        ]
+    };
+
+    new Vue({
+        el: '#app',
+        data: {
+            //负载率
+            load:'',
+            //核心数
+            NumCores:'',
+            //cpu使用率
+            cpu:'',
+            //总内存
+            ram:'',
+            //以用内存
+            usedram:'',
+            //内存使用率
+            ramusage:'',
+            //根目录名称
+            name_rom:'/',
+            //根目录大小
+            rom:'',
+            //已用
+            usedrom:'',
+            //储存使用率
+            romusage:'',
+            //网站数量
+            NumSites:'',
+            //数据库数
+            NumDbs:'',
+            //负载状态
+            LoadStatus:''
+
+        },
+        created:function (){
+            this.getSystemInfo();
+            this.timing();
+        },
+        methods:{
+            handleOpen(){},
+            handleClose(){},
+            getSystemInfo(){
+                axios.post("/systeminfo/all").then((res) => {
+                    if (res.data.flag){
+                        this.load = ((res.data.data[0].load/(res.data.data[0].NumCores * 3)) * 100).toFixed(1);
+                        this.NumCores = res.data.data[0].NumCores;
+                        this.ram = res.data.data[0].ram;
+                        this.usedram = this.ram - res.data.data[0].remainram;
+                        this.rom = res.data.data[0].rom;
+                        this.usedrom = res.data.data[0].usedrom;
+                        this.ramusage = ((this.usedram/this.ram)*100).toFixed(1);
+                        this.romusage = res.data.data[0].romusage;
+                        var download = parseFloat(res.data.data[0].download).toFixed(2);
+                        var upload = parseFloat(res.data.data[0].upload).toFixed(2);
+                        option.legend.data = ['下载'+download+'KB/s','上传'+upload+'KB/s'];
+                        option.title.text = res.data.data[0].NIC+'实时网速';
+                        option.series[0].name = '上传'+upload+'KB/s';
+                        option.series[1].name = '下载'+download+'KB/s';
+                        myChart.setOption(option,true);
+                        //负载状态
+                        if (res.data.data[0].load > (res.data.data[0].NumCores * 3)){
+                            this.LoadStatus = '负载过高';
+                        }
+                        else {
+                            this.LoadStatus = '负载正常';
+                        }
+                        //动态生成流量表
+                        if (option.xAxis[0].data.length < 7) {
+                            option.xAxis[0].data.push(res.data.data[0].time);
+                            option.series[0].data.push(upload);
+                            option.series[1].data.push(download);
+                            myChart.setOption(option,true);
+                        }
+                        else {
+                            option.xAxis[0].data.shift();
+                            option.series[0].data.shift();
+                            option.series[1].data.shift();
+                            option.xAxis[0].data.push(res.data.data[0].time);
+                            option.series[0].data.push(upload);
+                            option.series[1].data.push(download);
+                            myChart.setOption(option,true);
+                        }
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            timing(){
+                setInterval(()=>{
+                    this.getSystemInfo();
+                    this.getCpu();
+                },5000)
+            },
+            getCpu(){
+                axios.post("/systeminfo/cpu").then((res) => {
+                    if (res.data.flag){
+                        this.cpu = res.data.data;
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            }
+        }
+    });
+    //初始化echarts实例
+    var myChart = echarts.init(document.getElementById('chart'));
+    //使用制定的配置项和数据显示图表
+    myChart.setOption(option);
+</script>
+</html>
