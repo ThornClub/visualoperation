@@ -73,7 +73,7 @@ public class GetSystemInfoServiceImpl implements GetSystemInfoService {
 
     @Override
     public String GetCpu() {
-        String cpu = ExecuteShell.GetResult("/root/cpu.sh");
+        String cpu = ExecuteShell.GetResult("./cpu.sh");
         if (cpu != null) {
             systemInfo.setCpu(Double.parseDouble(cpu));
         }
