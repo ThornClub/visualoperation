@@ -46,7 +46,7 @@ public class LoginAndLogoutController {
     @RequestMapping("/")
     public String index(Model model){
         model.addAttribute("name",webSite.getName());
-        System.out.println("jenkins开始运行了");
+        System.out.println("jenkins开始。运行了");
         return "main";
     }
 
