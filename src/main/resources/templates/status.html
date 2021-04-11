@@ -194,12 +194,11 @@
             this.timing();
         },
         methods:{
-            handleOpen(){},
-            handleClose(){},
             getSystemInfo(){
                 axios.post("/systeminfo/all").then((res) => {
                     if (res.data.flag){
-                        this.load = ((res.data.data[0].load/(res.data.data[0].NumCores * 3)) * 100).toFixed(1);
+                        this.load = res.data.data[0].load;
+                        this.LoadStatus = res.data.data[0].loadStatus;
                         this.NumCores = res.data.data[0].NumCores;
                         this.ram = res.data.data[0].ram;
                         this.usedram = this.ram - res.data.data[0].remainram;
@@ -214,13 +213,6 @@
                         option.series[0].name = '上传'+upload+'KB/s';
                         option.series[1].name = '下载'+download+'KB/s';
                         myChart.setOption(option,true);
-                        //负载状态
-                        if (res.data.data[0].load > (res.data.data[0].NumCores * 3)){
-                            this.LoadStatus = '负载过高';
-                        }
-                        else {
-                            this.LoadStatus = '负载正常';
-                        }
                         //动态生成流量表
                         if (option.xAxis[0].data.length < 7) {
                             option.xAxis[0].data.push(res.data.data[0].time);

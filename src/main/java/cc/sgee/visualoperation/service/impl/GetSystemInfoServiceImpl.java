@@ -6,6 +6,8 @@ import cc.sgee.visualoperation.common.utils.ExecuteShell;
 import cc.sgee.visualoperation.service.GetSystemInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -53,8 +55,14 @@ public class GetSystemInfoServiceImpl implements GetSystemInfoService {
         map_info.put("NIC",sysinfo.split(" ")[1]);
         map_info.put("download",sysinfo.split(" ")[2]);
         map_info.put("upload",sysinfo.split(" ")[3]);
-        map_info.put("load",sysinfo.split(" ")[4]);
         map_info.put("NumCores",sysinfo.split(" ")[5]);
+        //判断负载状态是否正常，保留两位小数
+        DecimalFormat df = new DecimalFormat("#.00");
+        double load = Double.parseDouble(sysinfo.split(" ")[4]);
+        int core = Integer.parseInt(sysinfo.split(" ")[5]);
+        String loadStatus = (load > core * 3) ? "负载过高" : "负载正常";
+        map_info.put("loadStatus",loadStatus);
+        map_info.put("load",String.valueOf(df.format(load / (core * 3) * 100)));
         map_info.put("ram", String.valueOf(ram));
         map_info.put("remainram", String.valueOf(remainram));
         map_info.put("rom",sysinfo.split(" ")[8]);
@@ -65,7 +73,7 @@ public class GetSystemInfoServiceImpl implements GetSystemInfoService {
         }
         systemInfo.setMemory(usageram);
         if (sysinfo.split(" ")[4] != null && sysinfo.split(" ")[5] != null) {
-            systemInfo.setLoad((Double.parseDouble(sysinfo.split(" ")[4]) / (Integer.parseInt(sysinfo.split(" ")[5])*3)) * 100);
+            systemInfo.setLoad(load / (core * 3) * 100);
         }
         info.add(map_info);
         return info;
@@ -74,7 +82,7 @@ public class GetSystemInfoServiceImpl implements GetSystemInfoService {
     @Override
     public String GetCpu() {
         String cpu = ExecuteShell.GetResult("./cpu.sh");
-        if (cpu != null) {
+        if (!"".equals(cpu)) {
             systemInfo.setCpu(Double.parseDouble(cpu));
         }
         return cpu;
