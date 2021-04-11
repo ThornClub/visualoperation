@@ -49,7 +49,6 @@ public class SaveSystemSettingsServiceImpl implements SaveSystemSettingsService 
             YmlUtil.setYmlFile(yml);
             YmlUtil.saveOrUpdateByKey("website.status",false);
             new Thread(() -> contextRefresher.refresh()).start();
-            System.out.println("Jenkins。。。。");
         } catch (IOException e) {
             e.printStackTrace();
         }
