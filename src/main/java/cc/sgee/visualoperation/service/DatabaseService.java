@@ -11,4 +11,5 @@ import java.util.Map;
  */
 public interface DatabaseService {
     List<Map<String,String>> getInfo();
+    void operate(String operate);
 }
