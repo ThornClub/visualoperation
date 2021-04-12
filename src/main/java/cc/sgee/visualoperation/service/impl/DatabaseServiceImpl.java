@@ -20,7 +20,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     public List<Map<String, String>> getInfo() {
         List<Map<String,String>> info = new ArrayList<>();
         Map<String,String> mapInfo = new HashMap<>();
-        String result = ExecuteShell.GetResult("./GetMysqlInfo");
+        String result = ExecuteShell.GetResult("./GetMysqlInfo.sh");
         String mysqlStatus = "";
         if ("0".equals(result.split(" ")[0]))
         {
