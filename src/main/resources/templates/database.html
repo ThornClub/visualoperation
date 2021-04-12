@@ -142,7 +142,7 @@
         created:function(){
             this.getInfo();
         },
-        method:{
+        methods:{
             getInfo(){
                 axios.post("/database/getinfo").then((res)=>{
                     if (res.data.flag){
