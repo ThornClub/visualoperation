@@ -6,6 +6,7 @@ import cc.sgee.visualoperation.service.DatabaseService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,6 +32,17 @@ public class DatabaseController {
             return new Result(true,"",databaseService.getInfo());
         } catch (Exception e) {
             return new Result(false, MessageConstant.GET_MYSQL_INFO_FAIL);
+        }
+    }
+    //操作数据库
+    @ApiOperation(value = "开关数据库",notes = "开启、关闭、重启数据库")
+    @RequestMapping(value = "/operate/{operate}",method = RequestMethod.POST)
+    public Result operate(@PathVariable String operate){
+        try {
+            databaseService.operate(operate);
+            return new Result(true,operate+MessageConstant.OPERATE_MYSQL_SUCCESS);
+        } catch (Exception e) {
+            return new Result(false,MessageConstant.OPERATE_MYSQL_FAIL);
         }
     }
 }

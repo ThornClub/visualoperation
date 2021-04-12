@@ -21,7 +21,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         List<Map<String,String>> info = new ArrayList<>();
         Map<String,String> mapInfo = new HashMap<>();
         String result = ExecuteShell.GetResult("./GetMysqlInfo.sh");
-        String mysqlStatus = "";
+        String mysqlStatus;
         if ("0".equals(result.split(" ")[0]))
         {
             mysqlStatus = "Running";
@@ -34,5 +34,21 @@ public class DatabaseServiceImpl implements DatabaseService {
         mapInfo.put("mysqlVersion",result.split(" ")[1]);
         info.add(mapInfo);
         return info;
+    }
+
+    @Override
+    public void operate(String operate) {
+        switch (operate){
+            case "Start":
+                ExecuteShell.Shell("service mysqld start");
+                break;
+            case "Stop":
+                ExecuteShell.Shell("service mysqld stop");
+                break;
+            case "Restart":
+                ExecuteShell.Shell("service mysqld restart");
+                break;
+            default:
+        }
     }
 }
