@@ -48,4 +48,5 @@ public class MessageConstant {
     public static final String ALLOW_PORT_FAIL = "放行端口失败,请重试";
     public static final String DELETE_ITEM_SUCCESS = "删除成功";
     public static final String DELETE_ITEM_FAIL = "删除失败,请重试";
+    public static final String GET_MYSQL_INFO_FAIL = "获取数据库信息失败,请重试";
 }

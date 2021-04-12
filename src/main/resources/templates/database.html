@@ -104,8 +104,8 @@
     new Vue({
         el: '#app',
         data: {
-            mysqlVersion: '5.9',
-            mysqlStatus: 'Running',
+            mysqlVersion: '',
+            mysqlStatus: '',
             database: [
                 {
                     name: 'test',
@@ -139,8 +139,21 @@
             dialogAddDatabaseForm: false,
             dialogChangePassword: false
         },
+        created:function(){
+            this.getInfo();
+        },
         method:{
-
+            getInfo(){
+                axios.post("/database/getinfo").then((res)=>{
+                    if (res.data.flag){
+                        this.mysqlVersion = res.data.data[0].mysqlVersion;
+                        this.mysqlStatus = res.data.data[0].mysqlStatus;
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            }
         }
     })
 </script>
