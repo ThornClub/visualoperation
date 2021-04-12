@@ -28,9 +28,9 @@
         <span>MySql版本号:{{mysqlVersion}}</span>
         <span style="margin-left: 50px">状态:{{mysqlStatus}}</span>
         <span style="margin-left: 50px">操作:</span>
-        <el-button size="small" type="success">启动</el-button>
-        <el-button size="small" type="warning">重启</el-button>
-        <el-button size="small" type="danger">关闭</el-button>
+        <el-button size="small" type="success" @click="startMysql">启动</el-button>
+        <el-button size="small" type="warning" @click="restartMysql">重启</el-button>
+        <el-button size="small" type="danger" @click="stopMysql">关闭</el-button>
     </el-card>
     <el-card style="height: 480px;border-radius: 0px;margin-top: 20px">
         <span>数据库管理</span>
@@ -148,6 +148,36 @@
                     if (res.data.flag){
                         this.mysqlVersion = res.data.data[0].mysqlVersion;
                         this.mysqlStatus = res.data.data[0].mysqlStatus;
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            startMysql(){
+                axios.post("/database/operate/Start").then((res) => {
+                    if (res.data.flag){
+                        this.$message.success(res.data.message);
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            stopMysql(){
+                axios.post("/database/operate/Stop").then((res) => {
+                    if (res.data.flag){
+                        this.$message.success(res.data.message);
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            restartMysql(){
+                axios.post("/database/operate/Restart").then((res) => {
+                    if (res.data.flag){
+                        this.$message.success(res.data.message);
                     }
                     else {
                         this.$message.error(res.data.message);
