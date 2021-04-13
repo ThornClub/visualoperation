@@ -157,6 +157,7 @@
             startMysql(){
                 axios.post("/database/operate/Start").then((res) => {
                     if (res.data.flag){
+                        this.getInfo();
                         this.$message.success(res.data.message);
                     }
                     else {
@@ -167,6 +168,7 @@
             stopMysql(){
                 axios.post("/database/operate/Stop").then((res) => {
                     if (res.data.flag){
+                        this.getInfo();
                         this.$message.success(res.data.message);
                     }
                     else {
@@ -177,6 +179,7 @@
             restartMysql(){
                 axios.post("/database/operate/Restart").then((res) => {
                     if (res.data.flag){
+                        this.getInfo();
                         this.$message.success(res.data.message);
                     }
                     else {
