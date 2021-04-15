@@ -11,9 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.stereotype.Service;
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -28,7 +26,7 @@ import java.util.*;
 @RefreshScope
 public class ScafetyServiceImpl implements ScafetyService {
 
-    private static final File yml = new File("application.yml");
+    private static final File YML = new File("application.yml");
 
     @Qualifier("configDataContextRefresher")
     @Autowired
@@ -92,7 +90,7 @@ public class ScafetyServiceImpl implements ScafetyService {
                     }
                 }
             }
-            YmlUtil.setYmlFile(yml);
+            YmlUtil.setYmlFile(YML);
             YmlUtil.saveOrUpdateByKey("scafety.allowPort",list);
             new Thread(() -> contextRefresher.refresh()).start();
             //获取配置文件中的blockIP
@@ -107,7 +105,7 @@ public class ScafetyServiceImpl implements ScafetyService {
                     ipList.remove(i);
                 }
             }
-            YmlUtil.setYmlFile(yml);
+            YmlUtil.setYmlFile(YML);
             YmlUtil.saveOrUpdateByKey("scafety.blockIP",ipList);
             new Thread(() -> contextRefresher.refresh()).start();
             //合并集合
@@ -164,7 +162,7 @@ public class ScafetyServiceImpl implements ScafetyService {
         map.put("status","正常");
         ipList.add(map);
         try {
-            YmlUtil.setYmlFile(yml);
+            YmlUtil.setYmlFile(YML);
             YmlUtil.saveOrUpdateByKey("scafety.blockIP",ipList);
             new Thread(() -> contextRefresher.refresh()).start();
         } catch (IOException e) {
@@ -190,7 +188,7 @@ public class ScafetyServiceImpl implements ScafetyService {
         }
         portList.add(map);
         try {
-            YmlUtil.setYmlFile(yml);
+            YmlUtil.setYmlFile(YML);
             YmlUtil.saveOrUpdateByKey("scafety.allowPort",portList);
             new Thread(() -> contextRefresher.refresh()).start();
         } catch (IOException e) {
@@ -211,7 +209,7 @@ public class ScafetyServiceImpl implements ScafetyService {
                     ExecuteShell.Shell("firewall-cmd --reload");
                     ipList.remove(i);
                     try {
-                        YmlUtil.setYmlFile(yml);
+                        YmlUtil.setYmlFile(YML);
                         YmlUtil.saveOrUpdateByKey("scafety.blockIP",ipList);
                         new Thread(() -> contextRefresher.refresh()).start();
                     } catch (IOException e) {
@@ -232,7 +230,7 @@ public class ScafetyServiceImpl implements ScafetyService {
                     ExecuteShell.Shell("firewall-cmd --reload");
                     portList.remove(i);
                     try {
-                        YmlUtil.setYmlFile(yml);
+                        YmlUtil.setYmlFile(YML);
                         YmlUtil.saveOrUpdateByKey("scafety.allowPort",portList);
                         new Thread(() -> contextRefresher.refresh()).start();
                     } catch (IOException e) {
