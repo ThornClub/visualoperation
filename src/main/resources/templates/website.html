@@ -28,41 +28,55 @@
         <span>Nginx版本号:{{nginxVersion}}</span>
         <span style="margin-left: 50px">状态:{{nginxStatus}}</span>
         <span style="margin-left: 50px">操作:</span>
-        <el-button size="small" type="success">启动</el-button>
-        <el-button size="small" type="warning">重启</el-button>
-        <el-button size="small" type="danger">关闭</el-button>
+        <el-button size="small" type="success" @click="startNginx">启动</el-button>
+        <el-button size="small" type="warning" @click="restartNginx">重启</el-button>
+        <el-button size="small" type="danger" @click="stopNginx">关闭</el-button>
     </el-card>
     <el-card style="height: 480px;border-radius: 0px;margin-top: 20px">
         <span>网站管理</span>
         <el-divider></el-divider>
-        <el-button size="small" type="success" @click="dialogAddWebForm = true">添加数据库</el-button>
-        <el-button size="small" @click="dialogPhpForm = true">PHP版本</el-button>
+        <el-button size="small" type="success" @click="dialogAddWebForm = true">添加网站</el-button>
+		<el-dialog title="网站" :visible.sync="dialogAddWebForm">
+		    <el-form :model="WebSiteForm" label-width="100px">
+		        <el-form-item label="域名">
+		            <el-input style="width: 300px" v-model="WebSiteForm.domain"></el-input>
+		        </el-form-item>
+				<el-form-item label="端口">
+		            <el-input style="width: 300px" v-model="WebSiteForm.port"></el-input>
+		        </el-form-item>
+		    </el-form>
+		    <div slot="footer" class="dialog-footer">
+		        <el-button @click="dialogAddWebForm = false">取 消</el-button>
+		        <el-button type="primary" @click="addWebSiteTrue">确 定</el-button>
+		    </div>
+		</el-dialog>
         <el-table :data="website" style="width: 100%">
             <el-table-column
-                    prop="name"
+                    prop="domain"
                     label="网站名"
                     width="250">
             </el-table-column>
             <el-table-column
-                    label="状态"
-                    fixed="right">
-                <el-button @click="" type="text" size="small" style="color: green">运行中</el-button>
-            </el-table-column>
-            <el-table-column
                     label="SSL证书"
-                    fixed="right">
-                <el-button @click="" type="text" size="small" style="color: green">未部署</el-button>
+                    prop="ssl">
+<!--                <el-button @click="" type="text" size="small" style="color: green">未部署</el-button>-->
             </el-table-column>
             <el-table-column
                     prop="root"
                     label="根目录"
                     width="250">
             </el-table-column>
+			<el-table-column
+			        label="端口"
+			        prop="port">
+			</el-table-column>
             <el-table-column
                     label="操作"
                     fixed="right">
-                <el-button @click="" type="text" size="small">设置</el-button>
-                <el-button @click="" type="text" size="small">删除</el-button>
+                <template slot-scope="scope">
+                    <el-button @click="" type="text" size="small">设置</el-button>
+                    <el-button @click="delWebSite(scope.row)" type="text" size="small">删除</el-button>
+                </template>
             </el-table-column>
         </el-table>
     </el-card>
@@ -72,19 +86,98 @@
     new Vue({
         el: '#app',
         data: {
-            nginxVersion: '7.0',
-            nginxStatus: 'Running',
+            nginxVersion: '',
+            nginxStatus: '',
             dialogAddWebForm: false,
-            dialogPhpForm: false,
-            website: [
-                {
-                    name: '',
-                    root: ''
-                }
-            ]
+            website: [],
+			WebSiteForm: {
+				domain: '',
+				port: '80'
+			}
         },
-        method:{
-
+        created:function(){
+            this.getInfo();
+            this.getWebList();
+        },
+        methods:{
+            getInfo(){
+                axios.post("/website/getinfo").then((res)=>{
+                    if (res.data.flag){
+                        this.nginxVersion = res.data.data[0].nginxVersion;
+                        this.nginxStatus = res.data.data[0].nginxStatus;
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+			getWebList(){
+				axios.get("/website/list").then((res) => {
+					if (res.data.flag){
+					    console.log(res);
+					    this.website = res.data.data;
+					}
+					else {
+					    this.$message.error(res.data.message);
+					}
+				})
+			},
+            addWebSiteTrue(){
+				axios.post("/website/add",this.WebSiteForm).then((res) => {
+					if (res.data.flag){
+					    this.dialogAddWebForm = false;
+					    this.$message.success(res.data.message);
+					    this.getWebList();
+					}
+					else {
+					    this.$message.error(res.data.message);
+					}
+				})
+			},
+            startNginx(){
+                axios.post("/website/operate/Start").then((res) => {
+                    if (res.data.flag){
+                        this.getInfo();
+                        this.$message.success(res.data.message);
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            stopNginx(){
+                axios.post("/website/operate/Stop").then((res) => {
+                    if (res.data.flag){
+                        this.getInfo();
+                        this.$message.success(res.data.message);
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            restartNginx(){
+                axios.post("/website/operate/Restart").then((res) => {
+                    if (res.data.flag){
+                        this.getInfo();
+                        this.$message.success(res.data.message);
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            delWebSite(row){
+                axios.post("/website/del",row).then((res) =>{
+                    if (res.data.flag){
+                        this.$message.success(res.data.message);
+                        this.getWebList();
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                });
+            }
         }
     })
 </script>

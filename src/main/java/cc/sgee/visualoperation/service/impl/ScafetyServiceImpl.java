@@ -135,17 +135,19 @@ public class ScafetyServiceImpl implements ScafetyService {
     public void ClosePing() {
         String[] cmd = {"/bin/sh","-c","firewall-cmd --permanent --add-rich-rule='rule protocol value=icmp drop'"};
         ExecuteShell.Shell(cmd);
+        ExecuteShell.Shell("firewall-cmd --reload");
     }
 
     @Override
     public void OpenPing() {
         String[] cmd = {"/bin/sh","-c","firewall-cmd --permanent --remove-rich-rule='rule protocol value=icmp drop'"};
         ExecuteShell.Shell(cmd);
+        ExecuteShell.Shell("firewall-cmd --reload");
     }
 
     @Override
     public void ChangePort(String port) {
-        ExecuteShell.GetResult("./ChangeSSHPort.sh " + port);
+        ExecuteShell.GetResult("./sh/ChangeSSHPort.sh " + port);
     }
 
     @Override

@@ -1,14 +1,15 @@
 package cc.sgee.visualoperation.service.impl;
 
+import cc.sgee.visualoperation.VisualoperationApplication;
 import cc.sgee.visualoperation.common.pojo.Crontab;
 import cc.sgee.visualoperation.common.utils.ExecuteShell;
 import cc.sgee.visualoperation.common.utils.YmlUtil;
 import cc.sgee.visualoperation.service.SaveSystemSettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.stereotype.Service;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -29,15 +30,41 @@ public class SaveSystemSettingsServiceImpl implements SaveSystemSettingsService 
     @Autowired
     private ContextRefresher contextRefresher;
 
+    @Value("${server.port}")
+    private String serverPort;
+
     @Override
     public void saveSettings(int port, String name, String username, String password) {
         try {
-            YmlUtil.setYmlFile(yml);
-            YmlUtil.saveOrUpdateByKey("server.port",port);
-            YmlUtil.saveOrUpdateByKey("spring.security.user.name",username);
-            YmlUtil.saveOrUpdateByKey("spring.security.user.password",password);
-            YmlUtil.saveOrUpdateByKey("website.name",name);
-            new Thread(() -> contextRefresher.refresh()).start();
+            if (!serverPort.equals(String.valueOf(port))){
+                YmlUtil.setYmlFile(yml);
+                YmlUtil.saveOrUpdateByKey("server.port",port);
+                YmlUtil.saveOrUpdateByKey("spring.security.user.name",username);
+                YmlUtil.saveOrUpdateByKey("spring.security.user.password",password);
+                YmlUtil.saveOrUpdateByKey("website.name",name);
+                ExecuteShell.Shell("ntpdate ntp.aliyun.com");
+                new Thread(() -> contextRefresher.refresh()).start();
+                Thread restartThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(5000);
+                            VisualoperationApplication.restart();
+                        } catch (InterruptedException ignored) {
+                        }
+                    }
+                });
+                restartThread.setDaemon(false);
+                restartThread.start();
+            }
+            else {
+                YmlUtil.setYmlFile(yml);
+                YmlUtil.saveOrUpdateByKey("spring.security.user.name",username);
+                YmlUtil.saveOrUpdateByKey("spring.security.user.password",password);
+                YmlUtil.saveOrUpdateByKey("website.name",name);
+                ExecuteShell.Shell("ntpdate ntp.aliyun.com");
+                new Thread(() -> contextRefresher.refresh()).start();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

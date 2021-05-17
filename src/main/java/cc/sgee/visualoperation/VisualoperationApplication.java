@@ -1,18 +1,21 @@
 package cc.sgee.visualoperation;
 
-import cc.sgee.visualoperation.schedul.Quartz;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.stereotype.Component;
+import org.springframework.context.ConfigurableApplicationContext;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+@SpringBootApplication
 public class VisualoperationApplication {
+    private static ConfigurableApplicationContext context;
+    private static String[] args;
     public static void main(String[] args) {
-        SpringApplication.run(VisualoperationApplication.class, args);
+        VisualoperationApplication.args = args;
+        VisualoperationApplication.context = SpringApplication.run(VisualoperationApplication.class, args);
     }
-
+    public static void restart() {
+        //关闭应用上下文
+        context.close();
+        //重新启动项目
+        VisualoperationApplication.context = SpringApplication.run(VisualoperationApplication.class, args);
+    }
 }

@@ -29,7 +29,7 @@ public class GetSystemInfoServiceImpl implements GetSystemInfoService {
     public List<Map> GetFixInfo() {
         List<Map> info = new ArrayList<>();
         Map<String,String> map_info = new HashMap<>();
-        String sysinfo = ExecuteShell.GetResult("./GetFixInfo.sh");
+        String sysinfo = ExecuteShell.GetResult("./sh/GetFixInfo.sh");
         map_info.put("ip",sysinfo.split(" ")[0]);
         map_info.put("version",sysinfo.split(" ")[1]);
         map_info.put("day",sysinfo.split(" ")[2]);
@@ -41,7 +41,7 @@ public class GetSystemInfoServiceImpl implements GetSystemInfoService {
     public List<Map> GetAll() {
         List<Map> info = new ArrayList<>();
         Map<String,String> map_info = new HashMap<>();
-        String sysinfo = ExecuteShell.GetResult("./GetNet.sh");
+        String sysinfo = ExecuteShell.GetResult("./sh/GetNet.sh");
         double ram = 0;
         if (sysinfo.split(" ")[6] != null) {
             ram = Double.parseDouble(sysinfo.split(" ")[6]);
@@ -85,7 +85,7 @@ public class GetSystemInfoServiceImpl implements GetSystemInfoService {
 
     @Override
     public String GetCpu() {
-        String cpu = ExecuteShell.GetResult("./cpu.sh");
+        String cpu = ExecuteShell.GetResult("./sh/cpu.sh");
         if (!"".equals(cpu)) {
             systemInfo.setCpu(Double.parseDouble(cpu));
         }
@@ -105,6 +105,4 @@ public class GetSystemInfoServiceImpl implements GetSystemInfoService {
         info.add(map_info);
         return info;
     }
-
-
 }

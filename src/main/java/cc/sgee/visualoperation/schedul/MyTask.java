@@ -23,7 +23,9 @@ public class MyTask implements Runnable{
 
     private NoticeUtils noticeUtils;
 
-    //多线程不允许@AutoWird注入，使用工具类获取Bean
+    /**
+      多线程不允许@AutoWird注入，使用工具类获取Bean
+     */
     public MyTask(){
         this.systemInfo = ApplicationContextProvider.getBean(SystemInfo.class);
         this.monitorSettings = ApplicationContextProvider.getBean(MonitorSettings.class);

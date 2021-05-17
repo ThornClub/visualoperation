@@ -15,7 +15,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Component
 public class MyWebMvcConfig implements WebMvcConfigurer {
 
-    /*
+    /**
      * Description:〈将自定义拦截器作为Bean写入配置〉
      * @param
      * @return: cc.sgee.visualoperation.interceptor.MyInterceptor

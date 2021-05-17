@@ -39,8 +39,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 http.headers().frameOptions().disable();
         http
                 .authorizeRequests()
+                //放行静态资源及登录成功路径
                 .antMatchers("/images/**","/logout_success").permitAll()
-                //.anyRequest().authenticated()
+                //所有请求都需鉴权
+                .anyRequest().authenticated()
                 .and()
                 .formLogin()
                 //指定登录页的路径

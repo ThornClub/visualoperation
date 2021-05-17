@@ -32,31 +32,15 @@
 <body background="/images/bg.jpg">
 <div id="app">
     <div class="login-container">
-        <el-form :model="login" :rules="rules"
-                 status-icon
-                 id="loginForm"
-                 ref="login"
-                 action="/login"
-                 method="post"
-                 label-position="left"
-                 label-width="0px"
-                 class="login-page">
+        <el-form :model="login" :rules="rules" status-icon id="loginForm" ref="login" action="/login" method="post" label-position="left" label-width="0px" class="login-page">
             <h2 class="title">系统登录</h2>
             <p style="color:red;text-align: center" th:text="${login_error}"></p>
             <el-form-item prop="username">
-                <el-input type="text"
-                          v-model="login.username"
-                          auto-complete="off"
-                          name="username"
-                          placeholder="用户名"
+                <el-input type="text" v-model="login.username" auto-complete="off" name="username" placeholder="用户名"
                 ></el-input>
             </el-form-item>
             <el-form-item prop="password">
-                <el-input type="password"
-                          v-model="login.password"
-                          name="password"
-                          auto-complete="off"
-                          placeholder="密码"
+                <el-input type="password" v-model="login.password" name="password" auto-complete="off" placeholder="密码"
                 ></el-input>
             </el-form-item>
             <el-form-item style="width:100%;">

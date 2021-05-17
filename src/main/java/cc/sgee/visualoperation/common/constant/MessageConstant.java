@@ -51,4 +51,22 @@ public class MessageConstant {
     public static final String GET_MYSQL_INFO_FAIL = "获取数据库信息失败,请重试";
     public static final String OPERATE_MYSQL_FAIL = "操作数据库失败,请重试";
     public static final String OPERATE_MYSQL_SUCCESS = "数据库成功";
+    public static final String GET_NGINX_INFO_FAIL = "获取网站信息失败,请重试";
+    public static final String OPERATE_NGINX_FAIL = "操作网站失败,请重试";
+    public static final String OPERATE_NGINX_SUCCESS = "网站成功";
+    public static final String DEL_DATABASE_SUCCESS = "删除数据库成功";
+    public static final String DEL_DATABASE_FAIL = "删除数据库失败，请重试";
+    public static final String BACK_DATABASE_FAIL = "备份数据库失败，请重试";
+    public static final String BACK_DATABASE_SUCCESS = "备份数据库成功，备份地址：./backDb_sql/";
+    public static final String GET_DBCHARACTER_FAIL = "获取数据库支持的字符集失败，请重试";
+    public static final String GET_DBSORTRULES_FAIL = "获取数据库字符集排序规则失败，请重试";
+    public static final String ADD_DATABASE_SUCCESS = "添加数据库成功";
+    public static final String ADD_DATABASE_FAIL = "添加数据库失败，请重试";
+    public static final String ADD_WEBSITE_SUCCESS = "添加网站成功";
+    public static final String ADD_WEBSITE_FAIL = "添加网站失败";
+    public static final String GET_WEBINFO_FAIL = "获取网站信息失败，请重试";
+    public static final String CHANGE_PD_SUCCESS = "更改密码成功";
+    public static final String CHANGE_PD_FAIL = "更改密码失败，请重试";
+    public static final String DEL_WEBSITE_SUCCESS = "删除网站成功";
+    public static final String DEL_WEBSITE_FAIL = "删除网站失败请重试";
 }

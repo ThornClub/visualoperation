@@ -7,7 +7,6 @@ import cc.sgee.visualoperation.common.utils.Result;
 import cc.sgee.visualoperation.service.GetSystemInfoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import javafx.geometry.Pos;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -70,15 +69,5 @@ public class GetSystemInfoController {
         } catch (Exception e) {
             return new Result(false,MessageConstant.GET_TIME_FAIL);
         }
-    }
-
-    @RequestMapping(value = "/get")
-    public Result test(){
-        return new Result(true,"", monitorSettings.toString());
-    }
-
-    @RequestMapping(value = "/get1")
-    public Result test1(){
-        return new Result(true,"", systemInfo.toString());
     }
 }
