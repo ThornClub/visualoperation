@@ -15,7 +15,7 @@ public interface GetSystemInfoService {
     //返回所有实时信息
     List<Map> GetAll();
     //CPU
-    String GetCpu();
+    String GetCpu() throws InterruptedException;
     //设置信息
     List<Map> settings();
 }

@@ -56,11 +56,11 @@
                     label="网站名"
                     width="250">
             </el-table-column>
-            <el-table-column
-                    label="SSL证书"
-                    prop="ssl">
-<!--                <el-button @click="" type="text" size="small" style="color: green">未部署</el-button>-->
-            </el-table-column>
+<!--            <el-table-column-->
+<!--                    label="SSL证书"-->
+<!--                    prop="ssl">-->
+<!--&lt;!&ndash;                <el-button @click="" type="text" size="small" style="color: green">未部署</el-button>&ndash;&gt;-->
+<!--            </el-table-column>-->
             <el-table-column
                     prop="root"
                     label="根目录"
@@ -74,7 +74,7 @@
                     label="操作"
                     fixed="right">
                 <template slot-scope="scope">
-                    <el-button @click="" type="text" size="small">设置</el-button>
+<!--                    <el-button @click="" type="text" size="small">设置</el-button>-->
                     <el-button @click="delWebSite(scope.row)" type="text" size="small">删除</el-button>
                 </template>
             </el-table-column>
@@ -114,7 +114,6 @@
 			getWebList(){
 				axios.get("/website/list").then((res) => {
 					if (res.data.flag){
-					    console.log(res);
 					    this.website = res.data.data;
 					}
 					else {

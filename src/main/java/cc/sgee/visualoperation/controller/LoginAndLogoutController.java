@@ -2,21 +2,15 @@ package cc.sgee.visualoperation.controller;
 
 import cc.sgee.visualoperation.common.pojo.User;
 import cc.sgee.visualoperation.common.pojo.WebSite;
-import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
@@ -46,7 +40,6 @@ public class LoginAndLogoutController {
     @RequestMapping("/")
     public String index(Model model){
         model.addAttribute("name",webSite.getName());
-        System.out.println("jenkins开始。。运行了");
         return "main";
     }
 

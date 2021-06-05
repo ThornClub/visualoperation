@@ -8,7 +8,7 @@ package cc.sgee.visualoperation.common.utils;
  */
 public class TestPort {
     public static boolean test(String port){
-        String is = ExecuteShell.GetResult("TestPort.sh " + port);
+        String is = ExecuteShell.GetResult("./sh/TestPort.sh " + port);
         if (is.equals("0")){
             return false;
         }

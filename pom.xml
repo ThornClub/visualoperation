@@ -78,6 +78,11 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.21</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>5.7.4</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>

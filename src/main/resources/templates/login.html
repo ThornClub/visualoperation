@@ -72,7 +72,6 @@
             handleSubmit(){
                 this.$refs.login.validate((valid) => {
                     if(valid){
-                        this.logining = true;
                         document.getElementById("loginForm").submit();
                     }else{
                         this.$message.error("账号或密码格式错误，请重新输入！");

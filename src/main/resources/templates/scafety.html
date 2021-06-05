@@ -65,7 +65,8 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item>
-                    <el-input id="ip_port" size="small" style="width: 200px" v-model="block_ip" placeholder="请输入要屏蔽的IP"></el-input>
+                    <el-input v-if="block_allow" id="ip_port" size="small" style="width: 200px" v-model="block_ip" placeholder="请输入要屏蔽的IP"></el-input>
+                    <el-input v-if="!block_allow" id="ip_port" size="small" style="width: 200px" v-model="allow_port" placeholder="请输入要放行的端口"></el-input>
                     <el-button id="button" size="small" @click="SubmitBlockIpAllowPort">屏蔽</el-button>
                     <span id="input_text" style="margin-left: 5px;font-size: 13px;color: #909399;">说明:支持屏蔽IP段，如:
                     192.168.0.0/24</span>
@@ -108,6 +109,7 @@
             ping: false,
             block_ip: '',
             allow_port: '',
+            block_allow: true,
             value: '屏蔽IP',
             OperInfo: [
                 {
@@ -135,7 +137,7 @@
                             else {
                                 this.$message.error(res.data.message);
                             }
-                        })
+                        });
                         break;
                     case "放行端口":
                         axios.post("/scafety/allow_port/" + this.allow_port).then((res) => {
@@ -146,7 +148,7 @@
                             else {
                                 this.$message.error(res.data.message);
                             }
-                        })
+                        });
                         break;
                 }
             },
@@ -168,14 +170,16 @@
                 switch (select) {
                     case "屏蔽IP":
                         button.html("屏蔽");
-                        ip_port.attr("v-model","block_ip");
-                        ip_port.attr("placeholder","请输入要屏蔽的ip")
+                        //ip_port.attr("v-model","block_ip");
+                        this.block_allow = true;
+                        //ip_port.attr("placeholder","请输入要屏蔽的ip");
                         input_text.html("说明:支持屏蔽IP段，如:192.168.0.0/24");
                         break;
                     case "放行端口":
                         button.html("放行");
-                        ip_port.attr("v-model","allow_port");
-                        ip_port.attr("placeholder","请输入要放行的端口")
+                        //ip_port.attr("v-model","allow_port");
+                        this.block_allow = false;
+                        //ip_port.attr("placeholder","请输入要放行的端口");
                         input_text.html("说明: 支持放行端口范围，如: 3000:3500");
                         break;
                 }

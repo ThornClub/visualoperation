@@ -58,7 +58,7 @@
                 <span>
                     <el-progress style="margin-top: -18px;" type="circle" :percentage="load"></el-progress>
                 </span>
-                <h4 class="circle-buttom">运行正常</h4>
+                <h4 class="circle-buttom">{{LoadStatus}}</h4>
             </li>
             <li style="margin-left: 200px">
                 <h4 class="circle-top">CPU使用率</h4>
@@ -72,7 +72,7 @@
                 <span>
                     <el-progress style="margin-top: -18px;" type="circle" :percentage="ramusage"></el-progress>
                 </span>
-                <h4 class="circle-buttom">{{usedram}}MB/{{ram}}MB</h4>
+                <h4 class="circle-buttom">{{usedram}}/{{ram}}</h4>
             </li>
             <li style="margin-left: 200px">
                 <h4 class="circle-top">{{name_rom}}</h4>
@@ -182,14 +182,14 @@
             //储存使用率
             romusage:'',
             //网站数量
-            NumSites:'',
+            NumSites: 0,
             //数据库数
-            NumDbs:'',
+            NumDbs: 0,
             //负载状态
             LoadStatus:''
-
         },
         created:function (){
+            this.getWebAndDb();
             this.getSystemInfo();
             this.timing();
         },
@@ -201,10 +201,10 @@
                         this.LoadStatus = res.data.data[0].loadStatus;
                         this.NumCores = res.data.data[0].NumCores;
                         this.ram = res.data.data[0].ram;
-                        this.usedram = this.ram - res.data.data[0].remainram;
+                        this.usedram = res.data.data[0].remainram;
                         this.rom = res.data.data[0].rom;
                         this.usedrom = res.data.data[0].usedrom;
-                        this.ramusage = ((this.usedram/this.ram)*100).toFixed(1);
+                        this.ramusage = res.data.data[0].usageram.replace('%','');
                         this.romusage = res.data.data[0].romusage;
                         var download = parseFloat(res.data.data[0].download).toFixed(2);
                         var upload = parseFloat(res.data.data[0].upload).toFixed(2);
@@ -233,18 +233,38 @@
                     else {
                         this.$message.error(res.data.message);
                     }
-                })
+                });
+            },
+            getWebAndDb(){
+                axios.post("/database/alldatabase").then((res) => {
+                    if (res.data.flag){
+                        var database = res.data.data;
+                        this.NumDbs = database.length;
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                });
+                axios.get("/website/list").then((res) => {
+                    if (res.data.flag){
+                        var website = res.data.data;
+                        this.NumSites = website.length
+                    }
+                    else {
+                        this.$message.error(res.data.message);
+                    }
+                });
             },
             timing(){
                 setInterval(()=>{
                     this.getSystemInfo();
                     this.getCpu();
-                },5000)
+                },3000)
             },
             getCpu(){
                 axios.post("/systeminfo/cpu").then((res) => {
                     if (res.data.flag){
-                        this.cpu = res.data.data;
+                        this.cpu = res.data.data.replace('%','');
                     }
                     else {
                         this.$message.error(res.data.message);

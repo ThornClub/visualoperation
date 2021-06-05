@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.stereotype.Service;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -33,17 +34,20 @@ public class SaveSystemSettingsServiceImpl implements SaveSystemSettingsService 
     @Value("${server.port}")
     private String serverPort;
 
+    @Value("${spring.security.user.password}")
+    private String pwd;
+
     @Override
     public void saveSettings(int port, String name, String username, String password) {
         try {
-            if (!serverPort.equals(String.valueOf(port))){
-                YmlUtil.setYmlFile(yml);
-                YmlUtil.saveOrUpdateByKey("server.port",port);
-                YmlUtil.saveOrUpdateByKey("spring.security.user.name",username);
-                YmlUtil.saveOrUpdateByKey("spring.security.user.password",password);
-                YmlUtil.saveOrUpdateByKey("website.name",name);
-                ExecuteShell.Shell("ntpdate ntp.aliyun.com");
-                new Thread(() -> contextRefresher.refresh()).start();
+            YmlUtil.setYmlFile(yml);
+            YmlUtil.saveOrUpdateByKey("server.port",port);
+            YmlUtil.saveOrUpdateByKey("spring.security.user.name",username);
+            YmlUtil.saveOrUpdateByKey("spring.security.user.password",password);
+            YmlUtil.saveOrUpdateByKey("website.name",name);
+            ExecuteShell.Shell("ntpdate ntp.aliyun.com");
+            new Thread(() -> contextRefresher.refresh()).start();
+            if (!serverPort.equals(String.valueOf(port)) || !password.equals(pwd)){
                 Thread restartThread = new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -56,14 +60,6 @@ public class SaveSystemSettingsServiceImpl implements SaveSystemSettingsService 
                 });
                 restartThread.setDaemon(false);
                 restartThread.start();
-            }
-            else {
-                YmlUtil.setYmlFile(yml);
-                YmlUtil.saveOrUpdateByKey("spring.security.user.name",username);
-                YmlUtil.saveOrUpdateByKey("spring.security.user.password",password);
-                YmlUtil.saveOrUpdateByKey("website.name",name);
-                ExecuteShell.Shell("ntpdate ntp.aliyun.com");
-                new Thread(() -> contextRefresher.refresh()).start();
             }
         } catch (IOException e) {
             e.printStackTrace();

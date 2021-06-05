@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author: Thorn
@@ -74,19 +75,39 @@ public class ScafetyServiceImpl implements ScafetyService {
                 for (Map<String, String> stringStringMap : list) {
                     already_port.add(stringStringMap.get("port"));
                 }
-                if (already_port.size() <= PublicPort.size()) {
-                    PublicPort.removeAll(already_port);
-                    for (String s : PublicPort) {
+                //判断配置文件中的port是否使用，若没有使用及时更新
+                //取差集
+                List<String> ClosePort = already_port.stream().filter(item -> !PublicPort.contains(item)).collect(Collectors.toList());
+                List<String> NewPort = PublicPort.stream().filter(item -> !already_port.contains(item)).collect(Collectors.toList());
+                //清理旧端口
+                if (ClosePort.size() != 0){
+                    for (String s : ClosePort) {
+                        for (int i = 0; i < list.size(); i++) {
+                            if (list.get(i).get("port").equals(s)){
+                                list.remove(i);
+                                break;
+                            }
+                        }
+                    }
+                }
+                //添加新端口
+                if (NewPort.size() != 0){
+                    for (String s : NewPort) {
                         Map<String, String> map = new HashMap<>();
                         map.put("port", s);
                         map.put("havior", "放行端口：" + s);
-                        if (TestPort.test(s)) {
-                            map.put("status", "正常");
-                        } else {
-                            map.put("status", "未使用");
-                        }
+                        map.put("status", "未使用");
                         map.put("time", "1970-01-01 00:00:00");
                         list.add(map);
+                    }
+                }
+                //判断所有端口状态
+                for (Map<String, String> list_port : list) {
+                    if (TestPort.test(list_port.get("port"))){
+                        list_port.put("status","正常");
+                    }
+                    else {
+                        list_port.put("status","未使用");
                     }
                 }
             }
@@ -95,14 +116,16 @@ public class ScafetyServiceImpl implements ScafetyService {
             new Thread(() -> contextRefresher.refresh()).start();
             //获取配置文件中的blockIP
             List<Map<String, String>> ipList = ScafetyBlockIP.getBlockIP();
-            for (int i = 0; i < ipList.size(); i++) {
-                String ip = ipList.get(i).get("ip");
-                String[] cmds = {"/bin/sh","-c","firewall-cmd --query-rich-rule=\"rule family='ipv4' source " +
-                        "address='"+ip+"' reject\""};
-                String IPresult = ExecuteShell.Shell(cmds);
-                if (IPresult.equals("no"))
-                {
-                    ipList.remove(i);
+            if (ipList != null){
+                for (int i = 0; i < ipList.size(); i++) {
+                    String ip = ipList.get(i).get("ip");
+                    String[] cmds = {"/bin/sh","-c","firewall-cmd --query-rich-rule=\"rule family='ipv4' source " +
+                            "address='"+ip+"' reject\""};
+                    String IPresult = ExecuteShell.Shell(cmds);
+                    if (IPresult.equals("no"))
+                    {
+                        ipList.remove(i);
+                    }
                 }
             }
             YmlUtil.setYmlFile(YML);
@@ -182,12 +205,7 @@ public class ScafetyServiceImpl implements ScafetyService {
         map.put("port",port);
         map.put("havior","放行端口："+port);
         map.put("time",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        if (TestPort.test(port)){
-            map.put("status","正常");
-        }
-        else {
-            map.put("status","未使用");
-        }
+        map.put("status","未使用");
         portList.add(map);
         try {
             YmlUtil.setYmlFile(YML);
