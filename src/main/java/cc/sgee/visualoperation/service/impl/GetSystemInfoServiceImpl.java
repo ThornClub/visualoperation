@@ -7,7 +7,7 @@ import cc.sgee.visualoperation.common.utils.GetSystemInfoUtils;
 import cc.sgee.visualoperation.service.GetSystemInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,7 +63,7 @@ public class GetSystemInfoServiceImpl implements GetSystemInfoService {
         String loadStatus = (loadRate >= 90) ? "负载过高" : "负载正常";
         map_info.put("loadStatus",loadStatus);
         map_info.put("NumCores", String.valueOf(core));
-        map_info.put("load",String.valueOf(loadRate));
+        map_info.put("load",String.valueOf(new DecimalFormat("#.00").format(loadRate)));
         map_info.put("ram",ram);
         map_info.put("remainram", remainram);
         //获取根目录大小

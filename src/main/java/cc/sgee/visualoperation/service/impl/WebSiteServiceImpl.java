@@ -71,14 +71,16 @@ public class WebSiteServiceImpl implements WebSiteService {
     public List<Map<String, String>> getWebInfo() {
         List<Map<String,String>> info = new ArrayList<>();
         String result = ExecuteShell.GetResult("./sh/GetWebInfo.sh");
-        String[] res = result.split(" ");
-        for (int i = 0; i < res.length; i++) {
-            Map<String,String> map_info = new HashMap<>();
-            map_info.put("ssl",res[i].split(",")[0]);
-            map_info.put("domain",res[i].split(",")[1]);
-            map_info.put("port",res[i].split(",")[2]);
-            map_info.put("root",res[i].split(",")[3]);
-            info.add(map_info);
+        if (!result.equals("")) {
+            String[] res = result.split(" ");
+            for (int i = 0; i < res.length; i++) {
+                Map<String,String> map_info = new HashMap<>();
+                map_info.put("ssl",res[i].split(",")[0]);
+                map_info.put("domain",res[i].split(",")[1]);
+                map_info.put("port",res[i].split(",")[2]);
+                map_info.put("root",res[i].split(",")[3]);
+                info.add(map_info);
+            }
         }
         return info;
     }

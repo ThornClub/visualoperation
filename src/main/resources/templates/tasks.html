@@ -401,7 +401,7 @@
                 var task_data = {
                     desc: this.data.task_desc,
                     crontab: this.crontab
-                }
+                };
                 axios.post("/save/task",task_data).then((res) => {
                     if (res.data.flag){
                         this.$message.success(res.data.message);
@@ -409,6 +409,8 @@
                     else {
                         this.$message.error(res.data.message);
                     }
+                    this.data.task_desc = undefined;
+                    this.shell = undefined;
                 })
             },
             time_param_everyweek(){

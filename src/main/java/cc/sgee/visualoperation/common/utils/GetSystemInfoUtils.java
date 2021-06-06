@@ -3,7 +3,6 @@ package cc.sgee.visualoperation.common.utils;
 import org.springframework.stereotype.Component;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
-
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.text.DecimalFormat;
@@ -12,7 +11,7 @@ import java.util.Map;
 
 /**
  * @Auther: Zhs
- * @Date: 2021/6/3 22:49
+ * @Date: 2020/12/3 22:49
  * @Description: 获取系统信息
  */
 @Component
@@ -21,7 +20,7 @@ public class GetSystemInfoUtils {
     private static final oshi.SystemInfo os = new oshi.SystemInfo();
 
     /**
-     * 获取负载均衡
+     * 获取负载
      * @return double
      */
     public double getLoad(){
